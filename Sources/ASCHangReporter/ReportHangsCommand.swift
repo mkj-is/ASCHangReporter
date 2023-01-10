@@ -17,16 +17,16 @@ enum ReportHangsError: Error {
 @main
 struct ReportHangsCommand: AsyncParsableCommand {
 
-    @Argument(help: "Key ID.")
+    @Argument(help: "Key ID")
     private var keyID: String
 
-    @Argument(help: "Issuer ID.")
+    @Argument(help: "Issuer ID")
     private var issuerID: String
 
-    @Argument(help: "Private key.")
+    @Argument(help: "Private key")
     private var privateKey: String
 
-    @Argument(help: "Bundle identifier.")
+    @Argument(help: "Bundle identifier")
     private var bundleIdentifier: String?
 
     func run() async throws {
@@ -64,9 +64,19 @@ struct ReportHangsCommand: AsyncParsableCommand {
                         .get(parameters: APIEndpoint.V1.Builds.WithID.DiagnosticSignatures.GetParameters(
                             filterDiagnosticType: [.hangs]
                         ))
+
+                    let percentageFormatter = NumberFormatter()
+                    percentageFormatter.numberStyle = .percent
+
                     for try await response in provider.paged(hangRequest) {
                         for hang in response.data {
-                            print(hang.id, hang.attributes?.weight ?? 0.0, hang.attributes?.signature ?? "No signature")
+
+                            let weight = hang.attributes?.weight ?? 0.0
+                            print("- Signature: \(hang.attributes?.signature ?? "—")")
+                            print("- Weight: \(percentageFormatter.string(from: weight as NSNumber) ?? "—")")
+                            print("- App version: \(version.attributes?.versionString ?? "—")")
+                            print("- Hang ID: \(hang.id)")
+                            print("")
                         }
                     }
                 }
