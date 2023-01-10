@@ -49,26 +49,28 @@ struct ReportHangsCommand: AsyncParsableCommand {
             .id(appId)
             .appStoreVersions
             .get(parameters: APIEndpoint.V1.Apps.WithID.AppStoreVersions.GetParameters(
-                filterAppStoreState: [.readyForSale],
-                limit: 1,
+                filterAppStoreState: [.readyForSale, .replacedWithNewVersion],
                 include: [.build]
             ))
 
-        guard let buildId = try await provider.request(versionsRequest).data.first?.relationships?.build?.data?.id else {
-            throw ReportHangsError.buildNotFound
-        }
-
-        let hangRequest = APIEndpoint
-            .v1
-            .builds
-            .id(buildId)
-            .diagnosticSignatures
-            .get(parameters: APIEndpoint.V1.Builds.WithID.DiagnosticSignatures.GetParameters(
-                filterDiagnosticType: [.hangs]
-            ))
-        for try await response in provider.paged(hangRequest) {
-            for hang in response.data {
-                print(hang.id, hang.attributes?.weight ?? 0.0, hang.attributes?.signature ?? "No signature")
+        for try await response in provider.paged(versionsRequest) {
+            for version in response.data {
+                if let buildId = version.relationships?.build?.data?.id {
+                    let hangRequest = APIEndpoint
+                        .v1
+                        .builds
+                        .id(buildId)
+                        .diagnosticSignatures
+                        .get(parameters: APIEndpoint.V1.Builds.WithID.DiagnosticSignatures.GetParameters(
+                            filterDiagnosticType: [.hangs]
+                        ))
+                    for try await response in provider.paged(hangRequest) {
+                        for hang in response.data {
+                            print(hang.id, hang.attributes?.weight ?? 0.0, hang.attributes?.signature ?? "No signature")
+                        }
+                    }
+                }
+                print("")
             }
         }
     }
