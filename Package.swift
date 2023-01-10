@@ -10,16 +10,14 @@ let package = Package(
         .executable(name: "ASCHangReporter", targets: ["ASCHangReporter"]),
     ],
     dependencies: [
-        .package(name: "ArgumentParser", url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
+        .package(url: "https://github.com/AvdLee/appstoreconnect-swift-sdk.git", .upToNextMajor(from: "2.0.0"))
     ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .executableTarget(name: "ASCHangReporter", dependencies: [
-            .product(name: "ArgumentParser", package: "ArgumentParser"),
+            .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            .product(name: "AppStoreConnect-Swift-SDK", package: "appstoreconnect-swift-sdk"),
         ]),
-        .testTarget(
-            name: "ASCHangReporterTests",
-            dependencies: ["ASCHangReporter"]),
+        .testTarget(name: "ASCHangReporterTests", dependencies: ["ASCHangReporter"]),
     ]
 )
