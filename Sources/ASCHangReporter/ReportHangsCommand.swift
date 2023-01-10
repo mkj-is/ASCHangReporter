@@ -88,7 +88,6 @@ struct ReportHangsCommand: AsyncParsableCommand {
                         }
                     }
                 }
-                print("")
             }
         }
     }
