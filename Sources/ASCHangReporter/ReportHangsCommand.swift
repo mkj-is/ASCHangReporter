@@ -75,6 +75,7 @@ struct ReportHangsCommand: AsyncParsableCommand {
                             let weight = hang.attributes?.weight ?? 0.0
                             print("- Weight: \(percentageFormatter.string(from: weight as NSNumber) ?? "—")")
                             print("- App version: \(version.attributes?.versionString ?? "—")")
+                            print("- Bundle ID: \(bundleIdentifier ?? "—")")
                             print("- Hang ID: \(hang.id)")
                             print("")
 
