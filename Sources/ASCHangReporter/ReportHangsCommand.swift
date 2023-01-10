@@ -70,13 +70,21 @@ struct ReportHangsCommand: AsyncParsableCommand {
 
                     for try await response in provider.paged(hangRequest) {
                         for hang in response.data {
+                            print("- Signature: \(hang.attributes?.signature ?? "—")")
 
                             let weight = hang.attributes?.weight ?? 0.0
-                            print("- Signature: \(hang.attributes?.signature ?? "—")")
                             print("- Weight: \(percentageFormatter.string(from: weight as NSNumber) ?? "—")")
                             print("- App version: \(version.attributes?.versionString ?? "—")")
                             print("- Hang ID: \(hang.id)")
                             print("")
+
+                            let logsEndpoint = APIEndpoint.v1.diagnosticSignatures.id(hang.id).logs.get()
+                            let response = try await provider.request(logsEndpoint)
+                            let fileURL = URL(filePath: FileManager.default.currentDirectoryPath)
+                                .appending(component: hang.id)
+                                .appendingPathExtension("json")
+
+                            try response.write(to: fileURL)
                         }
                     }
                 }
